@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: aliceblue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        #file-input{
+            opacity: 0;
+        }
+        
+        .common{
+            background-color: aqua;
+            padding: 10px;
+            border: 3px solid darkcyan;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+
+        .image-preview{
+            height: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;  
+        }
+
+        .image-preview > img{
+            height: 100%;
+        }
+
+        .preview{
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .container{
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <form action="/somewhere" method="post" enctype="multipart/form-data">
+        <div class="container">
+            <label for="file-input" class="common" id="file-input-label">Chose an image to upload (png,jpg)</label>
+            <input type="file" name="file" id="file-input" multiple accept="image/png,image/jpeg">
+        </div>
+        <div class="container preview" id="preview-container">
+            <p class='image-preview common'>no files to show here...🌵</p>
+        </div>
+        <div class="container">
+            <button type="submit" class="common">Submit</button>
+        </div>
+    </form>
+    
+
+    <script>
+        const validFileTypes = [
+            "image/apng",
+            "image/bmp",
+            "image/gif",
+            "image/jpeg",
+            "image/pjpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/tiff",
+            "image/webp",
+            "image/x-icon",
+        ];
+
+        const previewContainer = document.getElementById("preview-container");
+        
+        const fileInput = document.getElementById("file-input");
+
+        fileInput.addEventListener("change", processFiles)
+
+
+        function processFiles(e){
+            const uploadedFiles = this.files;
+            
+            if(uploadedFiles.length === 0){
+                previewContainer.innerHTML = "<p class='image-preview common'>no files to show here...🌵</p>";
+            }else{
+
+                previewContainer.innerHTML = ""; 
+                for( const file of uploadedFiles){
+    
+                    if(validateFileType(file)){
+    
+                        const fileName = file.name;
+                        const fileSize = formatFileSize(file);
+                        
+                        const fileUrl = URL.createObjectURL(file);
+    
+                        const previewElement = document.createElement("p");
+    
+                        previewElement.innerText = `File Name: ${fileName}; File Size: ${fileSize}`;
+                        previewElement.classList.add("image-preview", "common");
+                        
+                        const previewImageElement = document.createElement("img");
+                        previewImageElement.setAttribute("src", fileUrl);
+                        previewImageElement.setAttribute("alt", "some cool image");
+    
+                        previewElement.appendChild(previewImageElement);
+    
+                        previewContainer.appendChild( previewElement );
+                        
+                    }else{
+                        alert("Invalid File Type!!!")
+                    }
+            }
+            
+            }
+        }
+
+        function validateFileType( file ){
+            return validFileTypes.includes(file.type);
+        }
+
+        function formatFileSize(file){
+            const KILO_BYTE = 1024;
+            const MEGA_BYTE = 1048576;
+            const GIGA_BYTE = 1073741824;
+
+            if(file.size < 1024){
+                return `${file.size.toFixed(2)} Bytes`;
+            }else if( file.size >= KILO_BYTE && file.size < MEGA_BYTE ){
+                return `${(file.size / KILO_BYTE).toFixed(2)} KB(s)`;
+            }else if( file.size >= MEGA_BYTE && file.size < GIGA_BYTE ){
+                return `${(file.size / MEGA_BYTE).toFixed(2)} MB(s)`;
+            }else if( file.size >= GIGA_BYTE ){
+                return `${(file.size / GIGA_BYTE).toFixed(2)} GB(s)`;
+            }
+        }
+    </script>
+
+</body>
+</html>
